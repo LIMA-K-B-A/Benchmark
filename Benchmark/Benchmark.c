@@ -3,9 +3,9 @@
 #include <time.h>
 
 void gerarArquivo(int quantidade, int min, int max) {
-    FILE *arquivo = fopen("numeros.txt", "w");
+    FILE *arquivo = fopen("NumGerados.txt", "w");
     if (arquivo == NULL) {
-        printf("Erro ao criar o arquivo.\n");
+        printf("Não foi possível criar o arquivo.\n");
         exit(1);
     }
 
@@ -19,9 +19,9 @@ void gerarArquivo(int quantidade, int min, int max) {
 }
 
 void buscaLinear(int elemento) {
-    FILE *arquivo = fopen("numeros.txt", "r");
+    FILE *arquivo = fopen("NumGerados.txt", "r");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Não foi possível abrir o arquivo.\n");
         exit(1);
     }
 
@@ -45,9 +45,9 @@ void buscaLinear(int elemento) {
 }
 
 void buscaSentinela(int elemento) {
-    FILE *arquivo = fopen("numeros.txt", "r");
+    FILE *arquivo = fopen("NumGerados.txt", "r");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Não foi possível abrir o arquivo.\n");
         exit(1);
     }
 
@@ -74,9 +74,9 @@ void buscaSentinela(int elemento) {
 }
 
 void buscaBinaria(int elemento) {
-    FILE *arquivo = fopen("numeros.txt", "r");
+    FILE *arquivo = fopen("NumGerados.txt", "r");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Não foi possível abrir o arquivo.\n");
         exit(1);
     }
 
@@ -121,9 +121,9 @@ void timer(void (*funcao)(int), int parametro) {
 }
 
 void insertionSort() {
-    FILE *arquivo = fopen("numeros.txt", "r+");
+    FILE *arquivo = fopen("NumGerados.txt", "r+");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Não foi possível abrir o arquivo.\n");
         exit(1);
     }
 
@@ -154,9 +154,9 @@ void insertionSort() {
 }
 
 void bubbleSort() {
-    FILE *arquivo = fopen("numeros.txt", "r+");
+    FILE *arquivo = fopen("NumGerados.txt", "r+");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Não foi possível abrir o arquivo.\n");
         exit(1);
     }
 
@@ -215,9 +215,9 @@ int particiona(int numeros[], int inicio, int fim) {
 }
 
 void quickSort() {
-    FILE *arquivo = fopen("numeros.txt", "r+");
+    FILE *arquivo = fopen("NumGerados.txt", "r+");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Não foi possível abrir o arquivo.\n");
         exit(1);
     }
 
@@ -303,4 +303,3 @@ int main() {
 
     return 0;
 }
-
