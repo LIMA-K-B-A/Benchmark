@@ -1,0 +1,407 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+void gerarArquivo(int quantidade, int min, int max);
+void timer(int (*funcao)(int), int parametro);
+void buscaLinear(int elemento);
+void buscaSentinela(int elemento);
+void buscaBinaria(int elemento);
+void insertionSort();
+void bubbleSort();
+void quickSortRecursivo(int numeros[], int inicio, int fim);
+int particiona(int numeros[], int inicio, int fim);
+void quickSort();
+int fatorialIterativo(int n);
+int fatorialRecursivo(int n);
+int somatorioIterativo(int n);
+int somatorioRecursivo(int n);
+int fibonacciIterativo(int n);
+int fibonacciRecursivo(int n);
+
+void gerarArquivo(int quantidade, int min, int max) {
+    FILE *arquivo = fopen("NumGerados.txt", "w");
+    if (arquivo == NULL) {
+        printf("Não foi possível criar o arquivo.\n");
+        exit(1);
+    }
+
+    srand(time(NULL));
+
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%d ", rand() % (max - min + 1) + min);
+    }
+
+    fclose(arquivo);
+}
+
+void timer(int (*funcao)(int), int parametro) {
+    clock_t inicio = clock();
+    int resultado = funcao(parametro);
+    clock_t fim = clock();
+
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    printf("Resultado: %d\n", resultado); // Exibir o resultado, se necessário
+    printf("Tempo de execução: %f segundos\n", tempo);
+}
+
+void buscaLinear(int elemento) {
+    FILE *arquivo = fopen("NumGerados.txt", "r");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        exit(1);
+    }
+
+    int numero;
+    int posicao = 1;
+    int encontrado = 0;
+
+    while (fscanf(arquivo, "%d", &numero) != EOF) {
+        if (numero == elemento) {
+            printf("Elemento encontrado na posição %d.\n", posicao);
+            encontrado = 1;
+        }
+        posicao++;
+    }
+
+    if (!encontrado) {
+        printf("Elemento não encontrado.\n");
+    }
+
+    fclose(arquivo);
+}
+
+void buscaSentinela(int elemento) {
+    FILE *arquivo = fopen("NumGerados.txt", "r");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        exit(1);
+    }
+
+    int numero;
+    int posicao = 1;
+
+    fscanf(arquivo, "%d", &numero); // Lê o primeiro número
+
+    // Define o último número do arquivo como o sentinela
+    while (fscanf(arquivo, "%d", &numero) != EOF) {
+        posicao++;
+    }
+    fseek(arquivo, -sizeof(int), SEEK_END); // Volta para o último número
+
+    if (numero != elemento) {
+        printf("Elemento não encontrado.\n");
+        fclose(arquivo);
+        return;
+    }
+
+    printf("Elemento encontrado na posição %d.\n", posicao);
+
+    fclose(arquivo);
+}
+
+void buscaBinaria(int elemento) {
+    FILE *arquivo = fopen("NumGerados.txt", "r");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        exit(1);
+    }
+
+    int numero;
+    int posicao = 1;
+    int inicio = 1;
+    int fim;
+
+    // Determina o tamanho do arquivo
+    fseek(arquivo, 0, SEEK_END);
+    fim = ftell(arquivo) / sizeof(int);
+
+    while (inicio <= fim) {
+        int meio = (inicio + fim) / 2;
+        fseek(arquivo, (meio - 1) * sizeof(int), SEEK_SET);
+        fscanf(arquivo, "%d", &numero);
+
+        if (numero == elemento) {
+            printf("Elemento encontrado na posição %d.\n", meio);
+            fclose(arquivo);
+            return;
+        } else if (numero < elemento) {
+            inicio = meio + 1;
+        } else {
+            fim = meio - 1;
+        }
+    }
+
+    printf("Elemento não encontrado.\n");
+
+    fclose(arquivo);
+}
+
+void insertionSort() {
+    FILE *arquivo = fopen("NumGerados.txt", "r+");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        exit(1);
+    }
+
+    int numeros[100]; // Supondo um limite de 100 números
+    int quantidade = 0;
+    int temp, j;
+
+    while (fscanf(arquivo, "%d", &numeros[quantidade]) != EOF) {
+        quantidade++;
+    }
+
+    for (int i = 1; i < quantidade; i++) {
+        temp = numeros[i];
+        j = i - 1;
+        while (j >= 0 && numeros[j] > temp) {
+            numeros[j + 1] = numeros[j];
+            j = j - 1;
+        }
+        numeros[j + 1] = temp;
+    }
+
+    rewind(arquivo);
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%d ", numeros[i]);
+    }
+
+    fclose(arquivo);
+}
+
+void bubbleSort() {
+    FILE *arquivo = fopen("NumGerados.txt", "r+");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        exit(1);
+    }
+
+    int numeros[100]; // Supondo um limite de 100 números
+    int quantidade = 0;
+    int temp;
+
+    while (fscanf(arquivo, "%d", &numeros[quantidade]) != EOF) {
+        quantidade++;
+    }
+
+    for (int i = 0; i < quantidade - 1; i++) {
+        for (int j = 0; j < quantidade - i - 1; j++) {
+            if (numeros[j] > numeros[j + 1]) {
+                temp = numeros[j];
+                numeros[j] = numeros[j + 1];
+                numeros[j + 1] = temp;
+            }
+        }
+    }
+
+    rewind(arquivo);
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%d ", numeros[i]);
+    }
+
+    fclose(arquivo);
+    printf("Bubble Sort concluído.\n");
+}
+
+void quickSortRecursivo(int numeros[], int inicio, int fim) {
+    if (inicio < fim) {
+        int pivo = particiona(numeros, inicio, fim);
+        quickSortRecursivo(numeros, inicio, pivo - 1);
+        quickSortRecursivo(numeros, pivo + 1, fim);
+    }
+}
+
+int particiona(int numeros[], int inicio, int fim) {
+    int pivo = numeros[fim];
+    int i = inicio - 1;
+
+    for (int j = inicio; j <= fim - 1; j++) {
+        if (numeros[j] < pivo) {
+            i++;
+            int temp = numeros[i];
+            numeros[i] = numeros[j];
+            numeros[j] = temp;
+        }
+    }
+
+    int temp = numeros[i + 1];
+    numeros[i + 1] = numeros[fim];
+    numeros[fim] = temp;
+    return i + 1;
+}
+
+void quickSort() {
+    FILE *arquivo = fopen("NumGerados.txt", "r+");
+    if (arquivo == NULL) {
+        printf("Não foi possível abrir o arquivo.\n");
+        exit(1);
+    }
+
+    int numeros[100]; // Supondo um limite de 100 números
+    int quantidade = 0;
+
+    while (fscanf(arquivo, "%d", &numeros[quantidade]) != EOF) {
+        quantidade++;
+    }
+
+    quickSortRecursivo(numeros, 0, quantidade - 1);
+
+    // Atualiza o arquivo com os números ordenados
+    rewind(arquivo);
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%d ", numeros[i]);
+    }
+
+    printf("Quick Sort concluído.\n");
+    fclose(arquivo);
+}
+
+// Algoritmo iterativo de Fatorial
+int fatorialIterativo(int n) {
+    int resultado = 1;
+    for (int i = 1; i <= n; i++) {
+        resultado *= i;
+    }
+    return resultado;
+}
+
+// Algoritmo recursivo de Fatorial
+int fatorialRecursivo(int n) {
+    if (n == 0 || n == 1) {
+        return 1;
+    } else {
+        return n * fatorialRecursivo(n - 1);
+    }
+}
+
+// Algoritmo iterativo de Somatório
+int somatorioIterativo(int n) {
+    int resultado = 0;
+    for (int i = 1; i <= n; i++) {
+        resultado += i;
+    }
+    return resultado;
+}
+
+// Algoritmo recursivo de Somatório
+int somatorioRecursivo(int n) {
+    if (n == 0) {
+        return 0;
+    } else {
+        return n + somatorioRecursivo(n - 1);
+    }
+}
+
+// Algoritmo iterativo de Fibonacci
+int fibonacciIterativo(int n) {
+    int a = 0, b = 1, temp;
+    if (n == 0) {
+        return a;
+    } else if (n == 1) {
+        return b;
+    } else {
+        for (int i = 2; i <= n; i++) {
+            temp = a + b;
+            a = b;
+            b = temp;
+        }
+        return b;
+    }
+}
+
+// Algoritmo recursivo de Fibonacci
+int fibonacciRecursivo(int n) {
+    if (n == 0) {
+        return 0;
+    } else if (n == 1) {
+        return 1;
+    } else {
+        return fibonacciRecursivo(n - 1) + fibonacciRecursivo(n - 2);
+    }
+}
+
+int main() {
+    int escolha;
+    int elemento;
+    int quantidade;
+    int min, max;
+
+    printf("Digite a quantidade de números a serem gerados: ");
+    scanf("%d", &quantidade);
+
+    printf("Digite o valor mínimo para os números gerados: ");
+    scanf("%d", &min);
+
+    printf("Digite o valor máximo para os números gerados: ");
+    scanf("%d", &max);
+
+    gerarArquivo(quantidade, min, max);
+
+    while (1) {
+        printf("\nMenu:\n");
+        printf("1. Busca Linear\n");
+        printf("2. Busca Sentinela\n");
+        printf("3. Busca Binária\n");
+        printf("4. Insertion Sort\n");
+        printf("5. Bubble Sort\n");
+        printf("6. Quick Sort\n");
+        printf("7. Fatorial (Iterativo e Recursivo)\n");
+        printf("8. Somatório (Iterativo e Recursivo)\n");
+        printf("9. Fibonacci (Iterativo e Recursivo)\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &escolha);
+
+        switch (escolha) {
+            case 1:
+                printf("Digite o elemento a ser buscado: ");
+                scanf("%d", &elemento);
+                timer(buscaLinear, elemento);
+                break;
+            case 2:
+                printf("Digite o elemento a ser buscado: ");
+                scanf("%d", &elemento);
+                timer(buscaSentinela, elemento);
+                break;
+            case 3:
+                printf("Digite o elemento a ser buscado: ");
+                scanf("%d", &elemento);
+                timer(buscaBinaria, elemento);
+                break;
+            case 4:
+                timer(insertionSort, 0);
+                break;
+            case 5:
+                timer(bubbleSort, 0);
+                break;
+            case 6:
+                timer(quickSort, 0);
+                break;
+            case 7:
+                printf("Digite o número para calcular o fatorial: ");
+                scanf("%d", &elemento);
+                timer(fatorialIterativo, elemento);
+                timer(fatorialRecursivo, elemento);
+                break;
+            case 8:
+                printf("Digite o número para calcular o somatório: ");
+                scanf("%d", &elemento);
+                timer(somatorioIterativo, elemento);
+                timer(somatorioRecursivo, elemento);
+                break;
+            case 9:
+                printf("Digite o número para calcular o Fibonacci: ");
+                scanf("%d", &elemento);
+                timer(fibonacciIterativo, elemento);
+                timer(fibonacciRecursivo, elemento);
+                break;
+            case 0:
+                return 0;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+        }
+    }
+
+    return 0;
+}
